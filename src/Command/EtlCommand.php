@@ -12,6 +12,7 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
+use Symfony\Component\Console\Style\SymfonyStyle;
 
 #[AsCommand(
     name: 'app:command:extract',
@@ -38,6 +39,7 @@ class EtlCommand extends Command
 
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
+        $io = new SymfonyStyle($input, $output);
         try {
             $file = $this->parameterBag->get('kernel.project_dir');
             $directory = $file . '/public/XML/';
@@ -64,11 +66,14 @@ class EtlCommand extends Command
                 $this->entityManager->persist($parking);
             }
             $this->entityManager->flush();
+            
+            $io->success('Le traitement a réussi.');
             return Command::SUCCESS;
 
         } catch (\Throwable $th) {
             $output->writeln('Une erreur est survenu :' . $th->getMessage());
             return Command::FAILURE;
         }
+        return Command::FAILURE;
     }
 }
